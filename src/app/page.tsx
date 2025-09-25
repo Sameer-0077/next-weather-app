@@ -9,19 +9,54 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Thermometer, Wind, Eye } from "lucide-react";
 import heroImage from "@/assets/weather-hero.jpg";
 
+// -------------------------
+// Types
+// -------------------------
+interface WeatherApiResponse {
+  name: string;
+  main: {
+    temp: number;
+    feels_like: number;
+    humidity: number;
+  };
+  weather: {
+    description: string;
+  }[];
+  wind: {
+    speed: number;
+  };
+  visibility: number;
+}
+
+interface CurrentWeather {
+  city: string;
+  temperature: number;
+  condition: string;
+  humidity: number;
+  windSpeed: number;
+  visibility: number;
+  feelsLike: number;
+}
+
+// -------------------------
+// Component
+// -------------------------
 const Home = () => {
-  const [currentWeather, setCurrentWeather] = useState<any>(null);
+  const [currentWeather, setCurrentWeather] = useState<CurrentWeather | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [city, setCity] = useState<string>("");
 
   const handleSearch = async (city: string) => {
     try {
       setLoading(true);
-      const res: any = await fetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_WEATHER_URL}${city}${process.env.NEXT_PUBLIC_API_KEY}`
       );
       if (!res.ok) throw new Error("Failed to fetch weather data");
-      const data: any = await res.json();
+
+      const data: WeatherApiResponse = await res.json();
 
       setCurrentWeather({
         city: data.name,
@@ -33,8 +68,8 @@ const Home = () => {
         feelsLike: data.main.feels_like,
       });
       setCity(data.name);
-    } catch (error: any) {
-      console.log("Error:", error.message);
+    } catch (err) {
+      console.log("Error:", (err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -49,8 +84,11 @@ const Home = () => {
     }
   };
 
+  // -------------------------
+  // UI (unchanged)
+  // -------------------------
   return (
-    <div className="relative min-h-screen  overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden">
       {/* Hero Image */}
       <div className="absolute inset-0 z-0 opacity-30">
         <Image

@@ -16,101 +16,97 @@ import Link from "next/link";
 import Image from "next/image";
 import heroImage from "@/assets/weather-hero.jpg";
 import { WeatherSearch } from "@/components/WeatherSearch";
-import { useEffect, useState } from "react";
-import { error } from "console";
+import { useEffect, useRef, useState } from "react";
 
-// Mock forecast data
+// -------------------------
+// Types
+// -------------------------
+interface ForecastItemApi {
+  dt_txt: string;
+  main: {
+    temp_max: number;
+    temp_min: number;
+    feels_like: number;
+    humidity: number;
+  };
+  weather: {
+    main: string;
+    description: string;
+  }[];
+  wind: {
+    speed: number;
+  };
+}
 
-const forecastData = [
-  {
-    day: "Today",
-    date: "Dec 24",
-    high: 22,
-    low: 15,
-    condition: "Sunny",
-    icon: Sun,
-    humidity: "65%",
-    wind: "12 km/h",
-    description: "Clear sky with gentle breeze",
-  },
-  {
-    day: "Tomorrow",
-    date: "Dec 25",
-    high: 18,
-    low: 12,
-    condition: "Cloudy",
-    icon: Cloud,
-    humidity: "72%",
-    wind: "8 km/h",
-    description: "Partly cloudy throughout the day",
-  },
-  {
-    day: "Wednesday",
-    date: "Dec 26",
-    high: 16,
-    low: 9,
-    condition: "Rainy",
-    icon: CloudRain,
-    humidity: "85%",
-    wind: "15 km/h",
-    description: "Light rain expected in the afternoon",
-  },
-  {
-    day: "Thursday",
-    date: "Dec 27",
-    high: 20,
-    low: 13,
-    condition: "Partly Cloudy",
-    icon: Cloud,
-    humidity: "68%",
-    wind: "10 km/h",
-    description: "Mix of sun and clouds",
-  },
-  {
-    day: "Friday",
-    date: "Dec 28",
-    high: 24,
-    low: 16,
-    condition: "Sunny",
-    icon: Sun,
-    humidity: "58%",
-    wind: "14 km/h",
-    description: "Beautiful sunny weather",
-  },
-];
+interface ForecastApiResponse {
+  list: ForecastItemApi[];
+  city: {
+    name: string;
+    country: string;
+  };
+}
 
+interface ForecastItem {
+  date: string;
+  day: string;
+  icon: typeof Sun; // Lucide icon component type
+  temp_max: number;
+  temp_min: number;
+  condition: string;
+  humidity: number;
+  windSpeed: number;
+  feelsLike: number;
+  description: string;
+}
+
+// -------------------------
+// Component
+// -------------------------
 const Forecast = () => {
   const searchParams = useSearchParams();
   const city = searchParams.get("city");
+
   const [loading, setLoading] = useState(false);
   const [searchCity, setSearchCity] = useState<string>("");
-  const [forecastWeather, setForecastWeather] = useState<any[]>([]);
+  const [forecastWeather, setForecastWeather] = useState<ForecastItem[]>([]);
   const [country, setCountry] = useState<string>("");
-  // const [icon, setIcon] = useState<string>("")
+
+  const initialCityRef = useRef(city);
 
   const handleSearch = async (city: string) => {
     try {
       setLoading(true);
-      const res: any = await fetch(
+      const res = await fetch(
         `${process.env.NEXT_PUBLIC_FORECAST_URL}${city}${process.env.NEXT_PUBLIC_API_KEY}`
       );
-      const data: any = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      const dailyData = data.list
-        .filter((_: any, index: number) => index % 8 === 0)
-        .slice(0, 5)
-        .map((item: any) => {
-          const dateObj = new Date(item.dt_txt.replace(" ", "T"));
-          let icon;
-          if (item.weather[0].main === "Clear") icon = Sun;
-          else if (item.weather[0].main === "Clouds") icon = Cloud;
-          else if (item.weather[0].main === "Rain") icon = CloudRain;
-          else  icon = Sun;
-          return {
-            date: dateObj.toISOString().split("T")[0], // e.g. "2025-09-25"
-            day: dateObj.toLocaleDateString("en-US", { weekday: "long" }), // e.g. "Thursday"
+      const data: ForecastApiResponse = await res.json();
 
-            icon: icon,
+      if (!res.ok) throw new Error((data as any).error || "API Error");
+
+      const dailyData: ForecastItem[] = data.list
+        .filter((_, index) => index % 8 === 0)
+        .slice(0, 5)
+        .map((item) => {
+          const dateObj = new Date(item.dt_txt.replace(" ", "T"));
+          let icon: typeof Sun;
+          switch (item.weather[0].main) {
+            case "Clear":
+              icon = Sun;
+              break;
+            case "Clouds":
+              icon = Cloud;
+              break;
+            case "Rain":
+              icon = CloudRain;
+              break;
+            default:
+              icon = Sun;
+          }
+
+          return {
+            date: dateObj.toISOString().split("T")[0],
+            day: dateObj.toLocaleDateString("en-US", { weekday: "long" }),
+            icon,
             temp_max: item.main.temp_max,
             temp_min: item.main.temp_min,
             condition: item.weather[0].main,
@@ -122,35 +118,37 @@ const Forecast = () => {
         });
 
       setForecastWeather(dailyData);
-      // console.log(dailyData);
-
       setSearchCity(data.city.name);
 
       switch (data.city.country.toUpperCase()) {
         case "IN":
-          return setCountry("India");
+          setCountry("India");
+          break;
         case "US":
-          return setCountry("United States");
+          setCountry("United States");
+          break;
         case "GB":
-          return setCountry("United Kingdom");
+          setCountry("United Kingdom");
+          break;
         case "CA":
-          return setCountry("Canada");
+          setCountry("Canada");
+          break;
         case "AU":
-          return setCountry("Australia");
-
+          setCountry("Australia");
+          break;
         default:
-          return "Unknown Country";
+          setCountry("Unknown Country");
       }
-    } catch (error: any) {
-      console.log("Error:", error.message);
+    } catch (err) {
+      console.log("Error:", (err as Error).message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (city) {
-      handleSearch(city);
+    if (initialCityRef.current) {
+      handleSearch(initialCityRef.current);
     }
   }, []);
 
@@ -163,9 +161,12 @@ const Forecast = () => {
     }
   };
 
+  // -------------------------
+  // UI (unchanged)
+  // -------------------------
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8  relative overflow-hidden text-white">
-      {/* Optional: add faint hero image overlay */}
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative overflow-hidden text-white">
+      {/* Hero Image */}
       <div className="absolute inset-0 z-0 opacity-30">
         <Image
           src={heroImage}
@@ -223,7 +224,6 @@ const Forecast = () => {
           </div>
         )}
 
-        {/* Forecast Cards */}
         {!loading && (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {forecastWeather.map((day, index) => {
@@ -279,7 +279,6 @@ const Forecast = () => {
           </div>
         )}
 
-        {/* Additional Info */}
         {!loading && (
           <div
             className="mt-12 text-center animate-fade-in"
