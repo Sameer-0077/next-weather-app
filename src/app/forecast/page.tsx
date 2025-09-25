@@ -58,6 +58,8 @@ interface ForecastItem {
   description: string;
 }
 
+type ErrorResponse = { error?: string };
+
 const Forecast = () => {
   const searchParams = useSearchParams();
   const city = searchParams.get("city");
@@ -77,7 +79,10 @@ const Forecast = () => {
       );
       const data: ForecastApiResponse = await res.json();
 
-      if (!res.ok) throw new Error((data as any).error || "API Error");
+      if (!res.ok) {
+        const errData: ErrorResponse = await res.json();
+        throw new Error(errData.error ?? "API Error");
+      }
 
       const dailyData: ForecastItem[] = data.list
         .filter((_, index) => index % 8 === 0)
