@@ -1,22 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WeatherApp
+
+A weather forecast application built with **React**, **TypeScript**, and
+**Tailwind CSS**.\
+It fetches real-time weather data, including a 5-day forecast, using the
+OpenWeatherMap API.
+
+## Features
+
+- Search for any city to view current weather and 5-day forecast
+- Responsive design using Tailwind CSS
+- Clean architecture with reusable components
+- Fully typed with TypeScript for better developer experience
+
+## Tech Stack
+
+- **Frontend**: React, TypeScript, Tailwind CSS
+- **API**: [OpenWeatherMap](https://openweathermap.org/api)
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js \>= 18
+- npm or yarn
+
+### Installation
+
+```bash
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the root of your project and add:
+
+    VITE_WEATHER_API_KEY=your_openweather_api_key
+
+### Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Build for Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
+
+### Deployment
+
+This project is deployed on **Vercel**.\
+
+1. Push your code to a GitHub repository. 2. Go to
+   [Vercel](https://vercel.com/) and import your repo. 3. Set the
+   environment variable (`VITE_WEATHER_API_KEY`) in the Vercel dashboard.
+2. Deploy!
+
+## Folder Structure
+
+    src/
+      components/     # Reusable UI components
+      pages/          # App pages
+      types/          # TypeScript type definitions
+      hooks/          # Custom hooks
+
+## License
+
+This project is open-source and available under the MIT License.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
