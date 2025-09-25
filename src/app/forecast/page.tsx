@@ -18,9 +18,8 @@ import heroImage from "@/assets/weather-hero.jpg";
 import { WeatherSearch } from "@/components/WeatherSearch";
 import { useEffect, useRef, useState } from "react";
 
-// -------------------------
 // Types
-// -------------------------
+
 interface ForecastItemApi {
   dt_txt: string;
   main: {
@@ -59,9 +58,6 @@ interface ForecastItem {
   description: string;
 }
 
-// -------------------------
-// Component
-// -------------------------
 const Forecast = () => {
   const searchParams = useSearchParams();
   const city = searchParams.get("city");
@@ -161,9 +157,6 @@ const Forecast = () => {
     }
   };
 
-  // -------------------------
-  // UI (unchanged)
-  // -------------------------
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 relative overflow-hidden text-white">
       {/* Hero Image */}

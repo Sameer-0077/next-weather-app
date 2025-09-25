@@ -9,9 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Thermometer, Wind, Eye } from "lucide-react";
 import heroImage from "@/assets/weather-hero.jpg";
 
-// -------------------------
 // Types
-// -------------------------
+
 interface WeatherApiResponse {
   name: string;
   main: {
@@ -38,9 +37,6 @@ interface CurrentWeather {
   feelsLike: number;
 }
 
-// -------------------------
-// Component
-// -------------------------
 const Home = () => {
   const [currentWeather, setCurrentWeather] = useState<CurrentWeather | null>(
     null
@@ -84,9 +80,6 @@ const Home = () => {
     }
   };
 
-  // -------------------------
-  // UI (unchanged)
-  // -------------------------
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Hero Image */}
