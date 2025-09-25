@@ -16,7 +16,7 @@ import Link from "next/link";
 import Image from "next/image";
 import heroImage from "@/assets/weather-hero.jpg";
 import { WeatherSearch } from "@/components/WeatherSearch";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 // Types
 
