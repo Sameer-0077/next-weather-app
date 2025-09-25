@@ -1,103 +1,213 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { WeatherSearch } from "@/components/WeatherSearch";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Calendar, Thermometer, Wind, Eye } from "lucide-react";
+import heroImage from "@/assets/weather-hero.jpg";
+
+const Home = () => {
+  const [currentWeather, setCurrentWeather] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [city, setCity] = useState<string>("");
+
+  const handleSearch = async (city: string) => {
+    try {
+      setLoading(true);
+      const res: any = await fetch(
+        `${process.env.NEXT_PUBLIC_WEATHER_URL}${city}${process.env.NEXT_PUBLIC_API_KEY}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch weather data");
+      const data: any = await res.json();
+
+      setCurrentWeather({
+        city: data.name,
+        temperature: data.main.temp,
+        condition: data.weather[0].description,
+        humidity: data.main.humidity,
+        windSpeed: Math.round((data.wind.speed + 1) * 2 * 10) / 10,
+        visibility: data.visibility / 1000,
+        feelsLike: data.main.feels_like,
+      });
+      setCity(data.name);
+    } catch (error: any) {
+      console.log("Error:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => handleSearch("Your Location"),
+        () => {}
+      );
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="relative min-h-screen  overflow-hidden">
+      {/* Hero Image */}
+      <div className="absolute inset-0 z-0 opacity-30">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src={heroImage}
+          alt="Weather Hero"
+          fill
+          className="object-cover"
           priority
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Content */}
+      <div className="relative z-10 p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-4">
+            Weather <span className="text-yellow-400">Now</span>
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed">
+            Get real-time weather updates and 5-day forecasts for any city
+            worldwide
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* Search Component */}
+        <div className="mb-12">
+          <WeatherSearch
+            onSearch={handleSearch}
+            onGetLocation={handleGetLocation}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        {/* Current Weather */}
+        {loading && (
+          <div className="text-center mb-8">
+            <Card className="max-w-md mx-auto bg-white/20 backdrop-blur-md border border-white/30 animate-pulse">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 bg-white/40 rounded-full"></div>
+                  <div className="h-4 bg-white/40 rounded w-3/4"></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {currentWeather && !loading && (
+          <div className="mb-8">
+            <Card className="max-w-2xl mx-auto bg-white/20 backdrop-blur-md border border-white/30">
+              <CardContent className="p-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {currentWeather.city}
+                  </h2>
+                  <div className="flex items-center justify-center gap-4">
+                    <span className="text-5xl font-bold text-yellow-400">
+                      {currentWeather.temperature}°C
+                    </span>
+                    <div className="text-left">
+                      <p className="text-lg font-medium text-white">
+                        {currentWeather.condition}
+                      </p>
+                      <p className="text-sm text-white/80">
+                        Feels like {currentWeather.feelsLike}°C
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Thermometer className="w-6 h-6 text-yellow-400" />
+                    <span className="text-sm font-medium text-white">
+                      {currentWeather.humidity}%
+                    </span>
+                    <span className="text-xs text-white/80">Humidity</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <Wind className="w-6 h-6 text-yellow-400" />
+                    <span className="text-sm font-medium text-white">
+                      {currentWeather.windSpeed}km/h
+                    </span>
+                    <span className="text-xs text-white/80">Wind</span>
+                  </div>
+                  <div className="flex flex-col items-center gap-2">
+                    <Eye className="w-6 h-6 text-yellow-400" />
+                    <span className="text-sm font-medium text-white">
+                      {currentWeather.visibility}km
+                    </span>
+                    <span className="text-xs text-white/80">Visibility</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* 5-Day Forecast Button */}
+        <div className="text-center mb-12">
+          <Link
+            href={{
+              pathname: "/forecast",
+              query: { city },
+            }}
+            passHref
+          >
+            <Button className="bg-yellow-400 text-blue-900 font-semibold px-8 py-4 hover:bg-yellow-500 transition-colors shadow-lg cursor-pointer">
+              <Calendar className="w-5 h-5 mr-2" />
+              View 5-Day Forecast
+            </Button>
+          </Link>
+        </div>
+
+        {/* Feature Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card className="bg-white/20 backdrop-blur-md border border-white/30 text-center hover:scale-105 transition-transform duration-300">
+            <CardContent className="p-6">
+              <Thermometer className="w-12 h-12 text-yellow-400 mx-auto mb-4 animate-bounce" />
+              <h3 className="text-lg font-semibold mb-2 text-white">
+                Real-time Data
+              </h3>
+              <p className="text-sm text-white/80">
+                Get up-to-date weather conditions from reliable sources
+                worldwide
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/20 backdrop-blur-md border border-white/30 text-center hover:scale-105 transition-transform duration-300">
+            <CardContent className="p-6">
+              <Calendar className="w-12 h-12 text-yellow-400 mx-auto mb-4 animate-bounce" />
+              <h3 className="text-lg font-semibold mb-2 text-white">
+                5-Day Forecast
+              </h3>
+              <p className="text-sm text-white/80">
+                Plan ahead with detailed weather predictions for the next five
+                days
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/20 backdrop-blur-md border border-white/30 text-center hover:scale-105 transition-transform duration-300">
+            <CardContent className="p-6">
+              <Wind className="w-12 h-12 text-yellow-400 mx-auto mb-4 animate-bounce" />
+              <h3 className="text-lg font-semibold mb-2 text-white">
+                Detailed Metrics
+              </h3>
+              <p className="text-sm text-white/80">
+                Access comprehensive weather data including wind, humidity, and
+                visibility
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default Home;
