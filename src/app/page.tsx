@@ -42,7 +42,6 @@ const Home = () => {
     null
   );
   const [loading, setLoading] = useState(false);
-  const [city, setCity] = useState<string>("");
 
   const handleSearch = async (city: string) => {
     try {
@@ -63,7 +62,6 @@ const Home = () => {
         visibility: data.visibility / 1000,
         feelsLike: data.main.feels_like,
       });
-      setCity(data.name);
     } catch (err) {
       console.log("Error:", (err as Error).message);
     } finally {
@@ -181,13 +179,7 @@ const Home = () => {
 
         {/* 5-Day Forecast Button */}
         <div className="text-center mb-12">
-          <Link
-            href={{
-              pathname: "/forecast",
-              query: { city },
-            }}
-            passHref
-          >
+          <Link href="/forecast" passHref>
             <Button className="bg-yellow-400 text-blue-900 font-semibold px-8 py-4 hover:bg-yellow-500 transition-colors shadow-lg cursor-pointer">
               <Calendar className="w-5 h-5 mr-2" />
               View 5-Day Forecast

@@ -10,7 +10,6 @@ import {
   Thermometer,
   Droplets,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -62,15 +61,10 @@ interface ForecastItem {
 type ErrorResponse = { error?: string };
 
 const Forecast = () => {
-  const searchParams = useSearchParams();
-  const city = searchParams.get("city");
-
   const [loading, setLoading] = useState(false);
   const [searchCity, setSearchCity] = useState<string>("");
   const [forecastWeather, setForecastWeather] = useState<ForecastItem[]>([]);
   const [country, setCountry] = useState<string>("");
-
-  const initialCityRef = useRef(city);
 
   const handleSearch = async (city: string) => {
     try {
@@ -147,12 +141,6 @@ const Forecast = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (initialCityRef.current) {
-      handleSearch(initialCityRef.current);
-    }
-  }, []);
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
